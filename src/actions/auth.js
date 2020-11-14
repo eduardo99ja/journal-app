@@ -1,46 +1,50 @@
-import {firebase, googleAuthProvider} from '../firebase/firebase-config'
+import { firebase, googleAuthProvider } from '../firebase/firebase-config'
 import { types } from '../types/types'
+import { finishLoading, startLoading } from './ui'
 
-export const startLoginEmailPassword = (email,password)=>{
-    return (dispatch)=>{
-        firebase.auth().signInWithEmailAndPassword(email,password)
-        .then(({user})=>{
-          dispatch(login(user.uid,user.displayName))
-         }).catch(e=>{
-           console.log(e);
-         })
-        
-    }
-}
-
-
-export const startRegisterWithEmaiPasswordName=(email,password,name)=>{
-  return( dispatch )=>{
-    firebase.auth().createUserWithEmailAndPassword(email,password)
-    .then(async({user})=>{
-     await user.updateProfile({
-        displayName:name
+export const startLoginEmailPassword = (email, password) => {
+  return dispatch => {
+    dispatch(startLoading())
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(({ user }) => {
+        dispatch(login(user.uid, user.displayName))
+        dispatch(finishLoading())
       })
-      console.log(user);
-      dispatch(
-        login(user.uid,user.displayName)
-      )
-    }).catch(e=>{
-      console.log(e);
-    })
+      .catch(e => {
+        console.log(e)
+        dispatch(finishLoading())
+      })
   }
-
 }
 
-export const startGoogleLogin =()=>{
-  return(dispatch)=>{
-    firebase.auth().signInWithPopup(googleAuthProvider)
-    .then(({user})=>{
-      dispatch(
-        login(user.uid,user.displayName)
-      )
-    })
+export const startRegisterWithEmaiPasswordName = (email, password, name) => {
+  return dispatch => {
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(async ({ user }) => {
+        await user.updateProfile({
+          displayName: name,
+        })
+        console.log(user)
+        dispatch(login(user.uid, user.displayName))
+      })
+      .catch(e => {
+        console.log(e)
+      })
+  }
+}
 
+export const startGoogleLogin = () => {
+  return dispatch => {
+    firebase
+      .auth()
+      .signInWithPopup(googleAuthProvider)
+      .then(({ user }) => {
+        dispatch(login(user.uid, user.displayName))
+      })
   }
 }
 
